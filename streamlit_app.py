@@ -3,31 +3,61 @@ import requests
 from datetime import datetime
 import json
 import time
+import streamlit.components.v1 as components
 
 # Page configuration
 st.set_page_config(
     page_title="Shivohm AI Assistant",
     page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="centered",  # Changed to centered for better iframe display
+    initial_sidebar_state="collapsed"  # Collapsed by default for iframe
 )
 
-# Custom CSS with improved styling
+# Custom CSS optimized for iframe embedding
 st.markdown("""
 <style>
+    /* Hide Streamlit branding and menu for iframe */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Remove padding for compact iframe view */
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        max-width: 100%;
+    }
+    
+    /* Make iframe scrollable */
+    .main {
+        overflow-y: auto;
+    }
+    
     .main-header {
         background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
-        padding: 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
+    .chat-container {
+        height: 400px;
+        overflow-y: auto;
+        padding: 10px;
+        background: white;
+        border-radius: 10px;
+        border: 2px solid #E5E7EB;
+        margin-bottom: 15px;
+    }
+    
     .chat-message {
-        padding: 15px 20px;
-        border-radius: 18px;
-        margin-bottom: 12px;
-        max-width: 75%;
+        padding: 12px 16px;
+        border-radius: 15px;
+        margin-bottom: 10px;
+        max-width: 80%;
         word-wrap: break-word;
         animation: slideIn 0.3s ease-out;
     }
@@ -58,39 +88,16 @@ st.markdown("""
         border: 1px solid #E5E7EB;
     }
     
-    .contact-card {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 15px;
-        border-left: 4px solid #FCD34D;
-    }
-    
-    .stat-card {
-        background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
-        padding: 25px;
-        border-radius: 12px;
-        text-align: center;
-        color: #1F2937;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: transform 0.2s;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-    
     .stButton>button {
         background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
         color: #1F2937;
         font-weight: bold;
         border: none;
         border-radius: 10px;
-        padding: 12px 24px;
+        padding: 10px 20px;
         transition: all 0.3s;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        width: 100%;
     }
     
     .stButton>button:hover {
@@ -98,17 +105,13 @@ st.markdown("""
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     
-    .stTextInput>div>div>input,
-    .stTextArea>div>div>textarea,
-    .stSelectbox>div>div>select {
+    .stTextInput>div>div>input {
         border-radius: 10px;
         border: 2px solid #E5E7EB;
         transition: border-color 0.3s;
     }
     
-    .stTextInput>div>div>input:focus,
-    .stTextArea>div>div>textarea:focus,
-    .stSelectbox>div>div>select:focus {
+    .stTextInput>div>div>input:focus {
         border-color: #FCD34D;
         box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.1);
     }
@@ -116,35 +119,57 @@ st.markdown("""
     .info-banner {
         background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
         color: white;
-        padding: 15px 20px;
-        border-radius: 10px;
-        margin: 10px 0;
-        text-align: center;
-    }
-    
-    .debug-info {
-        background: #FEF3C7;
-        border: 2px solid #FCD34D;
-        padding: 10px;
+        padding: 12px 16px;
         border-radius: 8px;
         margin: 10px 0;
-        font-size: 0.85em;
+        text-align: center;
+        font-size: 0.9em;
     }
     
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
+    .powered-by {
+        text-align: center;
+        color: #6B7280;
+        padding: 10px;
+        font-size: 0.85em;
+        margin-top: 10px;
+    }
+    
+    /* Compact sidebar for iframe */
+    .css-1d391kg {
+        padding: 1rem;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        color: #1F2937;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 10px;
+    }
+    
+    .contact-card {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 10px;
+        border-left: 4px solid #FCD34D;
+        font-size: 0.9em;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Configuration
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "https://3d866683c5e5.ngrok-free.app"
 DEMO_MODE = False  # Set to True for testing without backend
 DEBUG_MODE = False  # Show debug info
 
 # Initialize session state
 if 'messages' not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "Hi! I'm Shivohm's AI assistant. How can I help you today? Feel free to ask about our services, projects, or anything else!"}
+        {"role": "assistant", "content": "Hi! I'm Shivohm's AI assistant. How can I help you today?"}
     ]
 if 'session_id' not in st.session_state:
     st.session_state.session_id = None
@@ -156,7 +181,6 @@ def get_mock_response(query):
     
     query_lower = query.lower()
     
-    # Enhanced contact detection
     contact_keywords = ['connect', 'contact', 'reach', 'touch', 'call', 'email', 'meeting', 'demo', 
                        'expert', 'team', 'talk', 'speak', 'introduce', 'form']
     show_contact = any(keyword in query_lower for keyword in contact_keywords)
@@ -199,8 +223,6 @@ def call_chat_api(user_input):
         
         if response.status_code == 200:
             data = response.json()
-            if DEBUG_MODE:
-                st.write("**Debug - API Response:**", data)
             return data
         else:
             st.error(f"API Error: {response.status_code}")
@@ -212,159 +234,97 @@ def call_chat_api(user_input):
         st.error(f"Error: {str(e)}")
         return None
 
-# Header
+# Compact Header
 st.markdown("""
 <div class="main-header">
-    <h1 style="margin:0; color:#1F2937; font-size: 2.5em;">🤖 Shivohm AI Assistant</h1>
-    <p style="margin:5px 0 0 0; color:#374151; font-size: 1.1em;">Your intelligent guide to our services and solutions</p>
+    <h2 style="margin:0; color:#1F2937; font-size: 1.8em;">🤖 Shivohm AI Assistant</h2>
+    <p style="margin:5px 0 0 0; color:#374151; font-size: 0.95em;">Your intelligent guide to our services</p>
 </div>
 """, unsafe_allow_html=True)
-
-# Debug info
-if DEBUG_MODE:
-    st.markdown(f"""
-    <div class="debug-info">
-        <strong>🔍 Debug Info:</strong><br>
-        Demo Mode: {DEMO_MODE}<br>
-        Session ID: {st.session_state.session_id}<br>
-        Messages Count: {len(st.session_state.messages)}
-    </div>
-    """, unsafe_allow_html=True)
 
 # Mode banner
 if DEMO_MODE:
     st.markdown("""
     <div class="info-banner">
-        <strong>🎭 DEMO MODE</strong> - Using simulated responses. Connect to backend API for full functionality.
+        <strong>🎭 DEMO MODE</strong> - Simulated responses
     </div>
     """, unsafe_allow_html=True)
 
-# Sidebar
+# Compact Sidebar
 with st.sidebar:
     st.markdown("""
-    <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%); border-radius: 10px; margin-bottom: 20px;">
-        <h1 style="margin:0; color:#1F2937; font-size: 2em;">SHIVOHM</h1>
-        <p style="margin:0; color:#374151; font-size: 0.9em;">Technology Solutions</p>
+    <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%); border-radius: 10px; margin-bottom: 15px;">
+        <h2 style="margin:0; color:#1F2937; font-size: 1.5em;">SHIVOHM</h2>
+        <p style="margin:0; color:#374151; font-size: 0.85em;">Technology Solutions</p>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("### 📊 Our Track Record")
+    st.markdown("### 📊 Track Record")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("""
-        <div class="stat-card">
-            <h2 style="margin:0; font-size:2.5em;">170+</h2>
-            <p style="margin:5px 0 0 0; font-size:0.9em;">Projects Delivered</p>
-        </div>
-        """, unsafe_allow_html=True)
-    with col2:
-        st.markdown("""
-        <div class="stat-card">
-            <h2 style="margin:0; font-size:2.5em;">20+</h2>
-            <p style="margin:5px 0 0 0; font-size:0.9em;">Happy Clients</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    col3, col4 = st.columns(2)
-    with col3:
-        st.markdown("""
-        <div class="stat-card">
-            <h2 style="margin:0; font-size:2.5em;">150+</h2>
-            <p style="margin:5px 0 0 0; font-size:0.9em;">Team Members</p>
-        </div>
-        """, unsafe_allow_html=True)
-    with col4:
-        st.markdown("""
-        <div class="stat-card">
-            <h2 style="margin:0; font-size:2.5em;">7+</h2>
-            <p style="margin:5px 0 0 0; font-size:0.9em;">Years Experience</p>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+    <div class="stat-card">
+        <h3 style="margin:0; font-size:1.8em;">170+</h3>
+        <p style="margin:5px 0 0 0; font-size:0.85em;">Projects</p>
+    </div>
+    <div class="stat-card">
+        <h3 style="margin:0; font-size:1.8em;">150+</h3>
+        <p style="margin:5px 0 0 0; font-size:0.85em;">Team Members</p>
+    </div>
+    <div class="stat-card">
+        <h3 style="margin:0; font-size:1.8em;">7+</h3>
+        <p style="margin:5px 0 0 0; font-size:0.85em;">Years Experience</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
     
-    st.markdown("### 📞 Quick Contact")
+    st.markdown("### 📞 Contact")
     st.markdown("""
     <div class="contact-card">
-        <p style="margin:10px 0;"><strong>📧 Email:</strong><br/>
-        <a href="mailto:info@shivohm.com" style="color:#F59E0B;">info@shivohm.com</a></p>
-        <p style="margin:10px 0;"><strong>📱 Phone:</strong><br/>
-        <a href="tel:+919081112202" style="color:#F59E0B;">+91-90811-12202</a></p>
-        <p style="margin:10px 0;"><strong>🌐 Website:</strong><br/>
-        <a href="https://shivohm.com" target="_blank" style="color:#F59E0B;">www.shivohm.com</a></p>
+        <p style="margin:5px 0;"><strong>📧</strong> <a href="mailto:info@shivohm.com" style="color:#F59E0B;">info@shivohm.com</a></p>
+        <p style="margin:5px 0;"><strong>📱</strong> <a href="tel:+919081112202" style="color:#F59E0B;">+91-90811-12202</a></p>
+        <p style="margin:5px 0;"><strong>🌐</strong> <a href="https://shivohm.com" target="_blank" style="color:#F59E0B;">www.shivohm.com</a></p>
     </div>
     """, unsafe_allow_html=True)
     
-    if st.button("🌐 Visit Contact Page", use_container_width=True):
-        st.markdown('<meta http-equiv="refresh" content="0;url=https://shivohm.com/contact-us/">', unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    if st.button("🗑️ Clear Chat History", use_container_width=True):
+    if st.button("🗑️ Clear Chat", use_container_width=True):
         st.session_state.messages = [
             {"role": "assistant", "content": "Hi! I'm Shivohm's AI assistant. How can I help you today?"}
         ]
         st.session_state.session_id = None
         st.rerun()
 
-# Chat section (full width now - no contact form)
+# Chat messages display
 st.markdown("### 💬 Chat")
 
-# Chat messages container
-chat_container = st.container()
-
-with chat_container:
-    for message in st.session_state.messages:
-        if message["role"] == "user":
-            st.markdown(f"""
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-                <div class="chat-message user-message">
-                    {message["content"]}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown(f"""
-            <div style="display: flex; justify-content: flex-start; margin-bottom: 10px;">
-                <div class="chat-message assistant-message">
-                    {message["content"]}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
 # Chat input
 user_input = st.chat_input("Type your message here... 💬")
 
 if user_input:
-    # Add user message
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    
-    # Get response
+    st.session_state.messages.append(
+        {"role": "user", "content": user_input}
+    )
+
     with st.spinner("🤔 Thinking..."):
         data = call_chat_api(user_input)
-        
-        if data:
-            # Update session ID
-            if data.get("session_id"):
-                st.session_state.session_id = data["session_id"]
-            
-            # Add assistant response
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": data["answer"]
-            })
-    
+
+    if data:
+        if data.get("session_id"):
+            st.session_state.session_id = data["session_id"]
+
+        st.session_state.messages.append(
+            {"role": "assistant", "content": data["answer"]}
+        )
+
     st.rerun()
 
-# Footer
-st.markdown("---")
+# Compact Footer
 st.markdown("""
-<div style="text-align: center; color: #6B7280; padding: 20px;">
-    <p style="margin:5px 0;">Powered by <strong>Shivohm AI</strong> | 
-    <a href="https://shivohm.com" target="_blank" style="color:#F59E0B;">www.shivohm.com</a></p>
-    <p style="margin:5px 0; font-size:0.9em;">© 2024 Shivohm Technologies. All rights reserved.</p>
+<div class="powered-by">
+    Powered by <strong>Shivohm AI</strong> | <a href="https://shivohm.com" target="_blank" style="color:#F59E0B;">www.shivohm.com</a>
 </div>
 """, unsafe_allow_html=True)

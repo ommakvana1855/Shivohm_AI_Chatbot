@@ -235,18 +235,18 @@ def call_chat_api(user_input):
         return None
 
 # Compact Header
-st.markdown("""
-<div class="main-header">
-    <h2 style="margin:0; color:#1F2937; font-size: 1.8em;">🤖 Shivohm AI Assistant</h2>
-    <p style="margin:5px 0 0 0; color:#374151; font-size: 0.95em;">Your intelligent guide to our services</p>
-</div>
-""", unsafe_allow_html=True)
+# st.markdown("""
+# <div class="main-header">
+#     <h2 style="margin:0; color:#1F2937; font-size: 1.8em;">🤖 Shivohm AI Assistant</h2>
+#     <p style="margin:5px 0 0 0; color:#374151; font-size: 0.95em;">Your intelligent guide to our services</p>
+# </div>
+# """, unsafe_allow_html=True)
 
 # Mode banner
 if DEMO_MODE:
     st.markdown("""
     <div class="info-banner">
-        <strong>🎭 DEMO MODE</strong> - Simulated responses
+        <strong>🎭DEMO MODE</strong> - Simulated responses
     </div>
     """, unsafe_allow_html=True)
 
@@ -295,7 +295,7 @@ with st.sidebar:
         st.rerun()
 
 # Chat messages display
-st.markdown("### 💬 Chat")
+st.markdown("### 💬 Ask Shivohm AI")
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
