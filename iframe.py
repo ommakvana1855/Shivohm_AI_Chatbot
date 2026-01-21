@@ -162,7 +162,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Configuration
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "https://3d866683c5e5.ngrok-free.app"
 DEMO_MODE = False  # Set to True for testing without backend
 DEBUG_MODE = False  # Show debug info
 
