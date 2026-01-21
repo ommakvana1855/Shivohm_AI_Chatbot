@@ -1,0 +1,10 @@
+openai
+qdrant-client
+pymongo
+python-dotenv
+tiktoken
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+streamlit
