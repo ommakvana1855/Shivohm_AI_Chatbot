@@ -18,7 +18,7 @@ st.markdown("""
 <style>
     /* Hide Streamlit branding and menu for iframe */
     #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
+    footer {display: none !important;}
     header {visibility: hidden;}
     
     /* Remove padding for compact iframe view */
@@ -127,11 +127,17 @@ st.markdown("""
     }
     
     .powered-by {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
         text-align: center;
         color: #6B7280;
         padding: 10px;
         font-size: 0.85em;
-        margin-top: 10px;
+        background-color: white;
+        z-index: 999;
+        border-top: 1px solid #E5E7EB;
     }
     
     /* Compact sidebar for iframe */
