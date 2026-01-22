@@ -19,7 +19,11 @@ st.markdown("""
     /* Hide Streamlit branding and menu for iframe */
     #MainMenu {visibility: hidden;}
     footer {display: none !important;}
+    .viewerBadge_container__1QSob {display: none !important;}
+    .styles_viewerBadge__1yB5_ {display: none !important;}
+    [data-testid="stStatusWidget"] {display: none !important;}
     header {visibility: hidden;}
+    .stApp footer {display: none !important;}
     
     /* Remove padding for compact iframe view */
     .block-container {
