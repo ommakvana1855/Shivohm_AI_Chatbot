@@ -172,7 +172,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Configuration
-API_BASE_URL = "https://0a7798ce6fae.ngrok-free.app"
+API_BASE_URL = "https://bf74-110-227-208-90.ngrok-free.app"
 DEMO_MODE = False  # Set to True for testing without backend
 DEBUG_MODE = False  # Show debug info
 
